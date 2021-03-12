@@ -2,10 +2,13 @@ public class Hole {
   private boolean occupied;
   private boolean player;
   private PVector pos;
-  public Hole(PVector p) {
+  private String id;
+  
+  public Hole(PVector p, String id) {
     this.occupied = false;
-    this.player = false;
+    //this.player = false;
     this.pos = p;
+    this.id = id;
   }
   public void Occupy(boolean player) {
     this.occupied = true;
@@ -19,5 +22,8 @@ public class Hole {
   }
   public boolean getPlayer() {
     return this.player;
+  }
+  public String getId() {
+    return this.id;
   }
 }

@@ -1,18 +1,23 @@
-import java.util.Vector;
+import java.util.*;
 
 boolean started;
 int radius = 20;
 color player1 = #66ff66, player2 = #ff9933;
 Hole holes[];
 Vector<Connection> conn1, conn2;
+Vector<Path> paths1, paths2;
 boolean player = true;
 float t = 0.0;
+
+String[] letter = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"}; 
 
 void setup() {
   size(680,380);
   background(#303030);
   conn1 = new Vector<Connection>();
   conn2 = new Vector<Connection>();
+  paths1 = new Vector<Path>();
+  paths2 = new Vector<Path>();
   started = false;
   field();
 }
@@ -56,7 +61,7 @@ void field() {
     for (int i = 0; i < 11; i++) {
       for (int j = 0; j < 11; j++) {
         circle(j*2*radius + 2*radius + offset, i*1.5*radius + 2*radius, radius);
-        Hole h = new Hole(new PVector(j*2*radius + 2*radius + offset, i*1.5*radius + 2*radius));
+        Hole h = new Hole(new PVector(j*2*radius + 2*radius + offset, i*1.5*radius + 2*radius), letter[i]+String.valueOf(j));
         holes[i*11+j] = h;
       }
       offset += radius;
@@ -117,10 +122,56 @@ void makeConnections(Hole h) {
 }
 
 void checkPath() {
-  Vector<Vector<Hole>> path1 = new Vector<Vector<Hole>>();
-  if (conn1.size() > 9) {
-    for (int i = 0; i < conn1.size(); i++) {
-      ;
+  for(int i = 0; i < holes.length; i++) {
+    if (holes[i].getId().charAt(0) == 'A' && (holes[i].isOccupied() && holes[i].getPlayer())) {
+      Path path = new Path();
+      path.pieces.add(holes[i]);
+      paths1.add(path);
+      tracePath(holes[i], paths1.get(0));
+    }
+  }
+  for (int i = 0; i < paths1.size()-1; i++) {
+    for (int j = 0; j < paths1.get(i).pieces.size()-1; j++) {
+      if (paths1.get(i).pieces.get(j).getId().charAt(0) == 'K') {
+        println("WIN");
+      }
+    }
+  }
+}
+
+void tracePath(Hole h, Path p) {
+  for (int i = 0; i < conn1.size(); i++) {
+    if (conn1.get(i).hole1.getId() == h.getId()) {
+      println("Connections of " + conn1.get(i).hole1.getId());
+      boolean ok = true;
+      println("Path pieces: " + p.pieces.size());
+      for (int j = 0; j < p.pieces.size(); j++) {
+        println("Connections of " + conn1.get(i).hole2.getId());
+        if (p.pieces.get(j).getId() == conn1.get(i).hole2.getId())
+          ok = false;
+      }
+      println("Found a connections to " + conn1.get(i).hole2.getId() + " status " + (ok ? "true" : "false"));
+      if (ok) {
+        Path newPath = new Path(p);
+        newPath.pieces.add(conn1.get(i).hole2);
+        paths1.add(newPath);
+        tracePath(conn1.get(i).hole2, paths1.get(paths1.size()-1));
+      }
+    } else if (conn1.get(i).hole2.getId() == h.getId()) {
+      println("Connections of " + conn1.get(i).hole2.getId());
+      boolean ok = true;
+      for (int j = 0; j < p.pieces.size(); j++) {
+        println("Checking " + p.pieces.get(j).getId());
+        if (p.pieces.get(j).getId() == conn1.get(i).hole1.getId())
+          ok = false;
+      }
+      println("Found a connection to " + conn1.get(i).hole1.getId() + " status " + (ok ? "true" : "false"));
+      if (ok) {
+        Path newPath = new Path(p);
+        newPath.pieces.add(conn1.get(i).hole1);
+        paths1.add(newPath);
+        tracePath(conn1.get(i).hole1, paths1.get(paths1.size()-1));
+      }
     }
   }
 }
