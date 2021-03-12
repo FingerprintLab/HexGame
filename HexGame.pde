@@ -2,6 +2,7 @@ import java.util.*;
 
 boolean started;
 int radius = 20;
+int boardDim = 11;
 color player1 = #66ff66, player2 = #ff9933;
 Hole holes[];
 Vector<Connection> conn1, conn2;
@@ -53,16 +54,16 @@ void field() {
   float offset = 0;
   
   if (!started) {
-    holes = new Hole[121];
+    holes = new Hole[boardDim*boardDim];
     
     push();
     noStroke();
     fill(#505050);
-    for (int i = 0; i < 11; i++) {
-      for (int j = 0; j < 11; j++) {
+    for (int i = 0; i < boardDim; i++) {
+      for (int j = 0; j < boardDim; j++) {
         circle(j*2*radius + 2*radius + offset, i*1.5*radius + 2*radius, radius);
         Hole h = new Hole(new PVector(j*2*radius + 2*radius + offset, i*1.5*radius + 2*radius), letter[i]+String.valueOf(j));
-        holes[i*11+j] = h;
+        holes[i*boardDim+j] = h;
       }
       offset += radius;
     }
@@ -142,15 +143,15 @@ void checkPath() {
 void tracePath(Hole h, Path p) {
   for (int i = 0; i < conn1.size(); i++) {
     if (conn1.get(i).hole1.getId() == h.getId()) {
-      println("Connections of " + conn1.get(i).hole1.getId());
+      //println("Connections of " + conn1.get(i).hole1.getId());
       boolean ok = true;
-      println("Path pieces: " + p.pieces.size());
+      //println("Path pieces: " + p.pieces.size());
       for (int j = 0; j < p.pieces.size(); j++) {
-        println("Connections of " + conn1.get(i).hole2.getId());
+        //println("Connections of " + conn1.get(i).hole2.getId());
         if (p.pieces.get(j).getId() == conn1.get(i).hole2.getId())
           ok = false;
       }
-      println("Found a connections to " + conn1.get(i).hole2.getId() + " status " + (ok ? "true" : "false"));
+      //println("Found a connections to " + conn1.get(i).hole2.getId() + " status " + (ok ? "true" : "false"));
       if (ok) {
         Path newPath = new Path(p);
         newPath.pieces.add(conn1.get(i).hole2);
@@ -158,14 +159,14 @@ void tracePath(Hole h, Path p) {
         tracePath(conn1.get(i).hole2, paths1.get(paths1.size()-1));
       }
     } else if (conn1.get(i).hole2.getId() == h.getId()) {
-      println("Connections of " + conn1.get(i).hole2.getId());
+      //println("Connections of " + conn1.get(i).hole2.getId());
       boolean ok = true;
       for (int j = 0; j < p.pieces.size(); j++) {
-        println("Checking " + p.pieces.get(j).getId());
+        //println("Checking " + p.pieces.get(j).getId());
         if (p.pieces.get(j).getId() == conn1.get(i).hole1.getId())
           ok = false;
       }
-      println("Found a connection to " + conn1.get(i).hole1.getId() + " status " + (ok ? "true" : "false"));
+      //println("Found a connection to " + conn1.get(i).hole1.getId() + " status " + (ok ? "true" : "false"));
       if (ok) {
         Path newPath = new Path(p);
         newPath.pieces.add(conn1.get(i).hole1);
